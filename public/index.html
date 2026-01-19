@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<title>非常好的跑馬燈</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Huninn&display=swap" rel="stylesheet">
+<style>
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 100%);
+    font-family: "Huninn", "Segoe UI", sans-serif;
+    overflow: hidden;
+}
+
+.ticker {
+    display: flex;
+    align-items: center;
+    height: 60px;
+    color: #fff;
+    background: linear-gradient(90deg, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.6) 100%);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.8), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    border-bottom: 2px solid rgba(196, 0, 0, 0.5);
+    position: relative;
+}
+
+.ticker::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+}
+
+.title {
+    background: linear-gradient(135deg, #c40000 0%, #ff4444 100%);
+    padding: 0 20px;
+    font-weight: 700;
+    font-size: 18px;
+    white-space: nowrap;
+    transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 4px 15px rgba(196, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    letter-spacing: 1px;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+    border-radius: 2px;
+    display: flex;
+    align-items: center;
+    height: 100%;
+    flex-shrink: 0;
+}
+
+.title::after {
+    content: '▶';
+    margin-left: 8px;
+    font-size: 12px;
+    opacity: 0.7;
+    animation: pulse 1.5s ease-in-out infinite;
+}
+
+.title.expand {
+    width: calc(100% - 120px);
+    text-align: center;
+    justify-content: center;
+}
+
+.title.expand::after {
+    display: none;
+}
+
+.title.expand ~ .marquee-wrapper {
+    display: none;
+}
+
+.marquee-wrapper {
+    flex: 1;
+    overflow: hidden;
+    position: relative;
+    margin: 0 20px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+}
+
+.marquee-wrapper::before,
+.marquee-wrapper::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 30px;
+    pointer-events: none;
+    z-index: 10;
+}
+
+.marquee-wrapper::before {
+    left: 0;
+    background: linear-gradient(90deg, rgba(10,10,10,1) 0%, transparent 100%);
+}
+
+.marquee-wrapper::after {
+    right: 0;
+    background: linear-gradient(90deg, transparent 0%, rgba(10,10,10,1) 100%);
+}
+
+.marquee {
+    white-space: nowrap;
+    padding-left: 100%;
+    font-size: 18px;
+    color: #fff;
+    text-shadow: 0 2px 8px rgba(196, 0, 0, 0.3), 0 0 20px rgba(255, 68, 68, 0.1);
+    letter-spacing: 0.5px;
+    font-weight: 500;
+}
+
+.time {
+    padding: 0 20px;
+    font-size: 17px;
+    white-space: nowrap;
+    font-weight: 600;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+    background: linear-gradient(135deg, rgba(196, 0, 0, 0.1) 0%, transparent 100%);
+    border-left: 2px solid rgba(196, 0, 0, 0.3);
+    letter-spacing: 1px;
+    width: 120px;
+    text-align: center;
+    flex-shrink: 0;
+}
+
+@keyframes scroll {
+    from { transform: translateX(0); }
+    to { transform: translateX(-100%); }
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 0.6; }
+    50% { opacity: 1; }
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.marquee {
+    animation: fadeIn 0.6s ease;
+}
+
+.control-panel {
+    position: fixed;
+    top: 70px;
+    right: 20px;
+    background: rgba(0, 0, 0, 0.9);
+    border: 2px solid rgba(196, 0, 0, 0.5);
+    border-radius: 8px;
+    padding: 15px;
+    z-index: 1000;
+    min-width: 200px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.8);
+}
+
+.control-panel-title {
+    color: #c40000;
+    font-weight: 700;
+    font-size: 14px;
+    margin-bottom: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.control-panel-toggle {
+    background: none;
+    border: none;
+    color: #c40000;
+    cursor: pointer;
+    font-size: 16px;
+    padding: 0;
+}
+
+.control-panel-toggle:hover {
+    color: #ff4444;
+}
+
+.mode-checkbox {
+    display: flex;
+    align-items: center;
+    margin: 8px 0;
+    color: #fff;
+    cursor: pointer;
+    user-select: none;
+}
+
+.mode-checkbox input {
+    margin-right: 8px;
+    cursor: pointer;
+    accent-color: #c40000;
+}
+
+.mode-checkbox label {
+    cursor: pointer;
+}
+
+.control-panel.collapsed {
+    width: 40px;
+    height: 40px;
+    padding: 8px;
+    min-width: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.control-panel.collapsed .control-panel-title,
+.control-panel.collapsed .mode-checkbox {
+    display: none;
+}
+
+.control-panel.collapsed .control-panel-toggle {
+    margin: 0;
+}
+</style>
+</head>
+
+<body>
+
+<div class="ticker">
+    <div class="title" id="title">載入中</div>
+
+    <div class="marquee-wrapper">
+        <div class="marquee" id="marqueeText"></div>
+    </div>
+
+    <div class="time" id="clock"></div>
+</div>
+
+<div class="control-panel" id="controlPanel">
+    <div class="control-panel-title">
+        顯示模式
+        <button class="control-panel-toggle" id="togglePanel">−</button>
+    </div>
+    <div id="modeCheckboxes"></div>
+</div>
+
+<script>
+/* 🕒 時鐘 */
+setInterval(() => {
+    document.getElementById("clock").textContent =
+        new Date().toLocaleTimeString("zh-TW", { hour12: false });
+}, 1000);
+
+/* 🌡️ 即時天氣 */
+async function loadCurrentWeather() {
+    const res = await fetch("http://localhost:3000/weather");
+    const data = await res.json();
+    const w = data.data;
+    const station = data.station.name;
+
+    return `即時天氣｜${station}｜${w.weather}｜溫度 ${w.temperature}°C｜濕度 ${w.humidity}%｜風速 ${w.wind.speed}m/s ${w.wind.direction}風`;
+}
+
+/* ☀️ 天氣預報（加料版） */
+async function loadWeather() {
+    const res = await fetch("http://localhost:3000/forecast");
+    const data = await res.json();
+    
+    const forecastText = data.forecast
+        .map(f => `${f.time} ${f.weather} ${f.temperature}°C (體感${f.apparentTemp}°C) 濕度${f.humidity}% 降雨${f.pop}% 風向 ${f.wind.direction} 風速 ${f.wind.speed}m/s`)
+        .join("　｜　");
+    
+    return `天氣預報 台南市新營區｜${forecastText}`;
+}
+
+/* 📰 新聞 */
+async function loadNews() {
+    const res = await fetch("http://localhost:3000/rss");
+    const text = await res.text();
+    const xml = new DOMParser().parseFromString(text, "text/xml");
+
+    return [...xml.querySelectorAll("entry title")]
+        .slice(0, 10)
+        .map(t => t.textContent.trim())
+        .join("　◆　");
+}
+
+/* 🌍 地震報告 */
+async function loadEarthquake() {
+    const res = await fetch("http://localhost:3000/eq-report");
+    const data = await res.json();
+    
+    if (!data || data.length === 0) {
+        return "暫無地震報告";
+    }
+    
+    const eq = data[0];
+    const timeStr = new Date(eq.time).toLocaleTimeString("zh-TW", { hour12: false });
+    
+    // 整理各縣市最大震度
+    const areas = Object.entries(eq.list)
+        .map(([county, info]) => `${county} ${info.int} 級`)
+        .join("　");
+    
+    return `地震報告｜${timeStr}｜${eq.loc}｜規模 ${eq.mag}｜深度 ${eq.depth}km｜${areas}`;
+}
+
+/* 🏎️ 自適應速度 */
+function setMarqueeSpeed() {
+    const marquee = document.getElementById("marqueeText");
+    const wrapper = marquee.parentElement;
+
+    const speed = 170;
+    const duration = (marquee.scrollWidth + wrapper.offsetWidth) / speed;
+    marquee.style.animation = `scroll ${duration}s linear 1`;
+}
+
+/* 🚨 模式切換＋紅字延伸 */
+let modes = [];
+let index = 0;
+let selectedModes = [];
+const modeNames = ["即時天氣", "天氣預報", "地震報告", "新聞速報"];
+
+async function updateModes() {
+    const allModes = [
+        { title: "即時天氣", content: await loadCurrentWeather() },
+        { title: "天氣預報", content: await loadWeather() },
+        { title: "地震報告", content: await loadEarthquake() },
+        { title: "新聞速報", content: await loadNews() }
+    ];
+    
+    // 根據選中的模式過濾
+    modes = allModes.filter((_, i) => selectedModes.includes(i));
+    index = 0;
+}
+
+function initControlPanel() {
+    const container = document.getElementById("modeCheckboxes");
+    const panel = document.getElementById("controlPanel");
+    const toggleBtn = document.getElementById("togglePanel");
+    
+    // 初始化選中狀態（預設全選）
+    if (selectedModes.length === 0) {
+        selectedModes = [0, 1, 2, 3];
+    }
+    
+    // 從localStorage讀取保存的選擇
+    const saved = localStorage.getItem("selectedModes");
+    if (saved) {
+        selectedModes = JSON.parse(saved);
+    }
+    
+    // 生成複選框
+    container.innerHTML = modeNames.map((name, i) => `
+        <div class="mode-checkbox">
+            <input type="checkbox" id="mode-${i}" data-index="${i}" ${selectedModes.includes(i) ? "checked" : ""}>
+            <label for="mode-${i}">${name}</label>
+        </div>
+    `).join("");
+    
+    // 綁定複選框事件
+    container.querySelectorAll("input[type='checkbox']").forEach(checkbox => {
+        checkbox.addEventListener("change", (e) => {
+            const idx = parseInt(e.target.dataset.index);
+            if (e.target.checked) {
+                if (!selectedModes.includes(idx)) {
+                    selectedModes.push(idx);
+                }
+            } else {
+                selectedModes = selectedModes.filter(i => i !== idx);
+            }
+            // 至少保留一個模式
+            if (selectedModes.length === 0) {
+                selectedModes = [0];
+                document.getElementById("mode-0").checked = true;
+            }
+            
+            localStorage.setItem("selectedModes", JSON.stringify(selectedModes));
+            updateModes().then(() => switchMode());
+        });
+    });
+    
+    // 切換面板展開/收起
+    toggleBtn.addEventListener("click", () => {
+        panel.classList.toggle("collapsed");
+        toggleBtn.textContent = panel.classList.contains("collapsed") ? "+" : "−";
+    });
+}
+
+function switchMode() {
+    if (modes.length === 0) return;
+    
+    const title = document.getElementById("title");
+    const marquee = document.getElementById("marqueeText");
+    const mode = modes[index];
+
+    title.textContent = mode.title;
+    title.classList.add("expand");
+    marquee.textContent = "";
+    marquee.style.animation = "none";
+
+    setTimeout(() => {
+        title.classList.remove("expand");
+        marquee.textContent = mode.content;
+        setMarqueeSpeed();
+        
+        // 移除舊的animationend事件監聽器
+        marquee.removeEventListener("animationend", handleAnimationEnd);
+        
+        // 監聽動畫完成事件
+        marquee.addEventListener("animationend", handleAnimationEnd, { once: true });
+    }, 1000);
+}
+
+function handleAnimationEnd() {
+    index = (index + 1) % modes.length;
+    switchMode();
+}
+
+/* 🔁 啟動 */
+(async () => {
+    initControlPanel();
+    await updateModes();
+    switchMode();
+
+    setInterval(updateModes, 5 * 60e3);   // 5 分鐘更新資料
+})();
+</script>
+
+</body>
+</html>
