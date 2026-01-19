@@ -19,11 +19,15 @@ wonderful-marquee/
 ```
 
 後端：Node.js + Express 5.2.1
+
 前端：HTML5 + CSS3 + JavaScript
+
 字體：Google Fonts (Huninn)
+
 API 來源：
-PTS 新聞 RSS: [](https://news.pts.org.tw/xml/newsfeed.xml)
-ExpTech API: 天氣與地震數據
+
+- PTS 新聞 RSS: [](https://news.pts.org.tw/xml/newsfeed.xml)
+- ExpTech API: 天氣與地震數據
 
 ## 啟動方式
 ```
