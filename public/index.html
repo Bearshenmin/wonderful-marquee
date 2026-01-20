@@ -299,14 +299,16 @@ async function loadEarthquake() {
     }
     
     const eq = data[0];
-    const timeStr = new Date(eq.time).toLocaleTimeString("zh-TW", { hour12: false });
+    const dateTime = new Date(eq.time);
+    const dateStr = dateTime.toLocaleDateString("zh-TW", { year: "numeric", month: "2-digit", day: "2-digit" });
+    const timeStr = dateTime.toLocaleTimeString("zh-TW", { hour12: false });
     
     // 整理各縣市最大震度
     const areas = Object.entries(eq.list)
         .map(([county, info]) => `${county} ${info.int} 級`)
         .join("　");
     
-    return `地震報告｜${timeStr}｜${eq.loc}｜規模 ${eq.mag}｜深度 ${eq.depth}km｜${areas}`;
+    return `地震報告｜${dateStr} ${timeStr}｜${eq.loc}｜規模 ${eq.mag}｜深度 ${eq.depth}km｜${areas}`;
 }
 
 /* 🏎️ 自適應速度 */
@@ -343,9 +345,9 @@ function initControlPanel() {
     const panel = document.getElementById("controlPanel");
     const toggleBtn = document.getElementById("togglePanel");
     
-    // 初始化選中狀態（預設全選）
+    // 初始化選中狀態（預設)
     if (selectedModes.length === 0) {
-        selectedModes = [0, 1, 2, 3];
+        selectedModes = [0, 2, 3];
     }
     
     // 從localStorage讀取保存的選擇
